@@ -25,6 +25,8 @@ static const sdbusplus::vtable::vtable_t example[] = {
                                 sdbusplus::vtable::property_::const_),
     sdbusplus::vtable::property("10", "11", &test_get, &test_set),
     sdbusplus::vtable::property_o("14", "15", 16),
+    sdbusplus::vtable::method_n("17", "18", "20", "19\0" "21\0", &test_handler, 0),
+    sdbusplus::vtable::signal_n("22", "23", "24\0"),
     sdbusplus::vtable::end()};
 
 TEST(VtableTest, SameSize)
@@ -64,12 +66,12 @@ constexpr bool operator==(const sd_bus_vtable& t1, const sd_bus_vtable& t2)
                    strcmp(t1.x.method.result, t2.x.method.result) == 0 &&
                    t1.x.method.handler == t2.x.method.handler &&
                    t1.x.method.offset == t2.x.method.offset &&
-                   strcmp(t1.x.method.names, t2.x.method.names) == 0;
+                   strcmp(t1.x.method.names, t2.x.method.names) == 0; // FIXME: strcmp checks only the first name
             break;
         case _SD_BUS_VTABLE_SIGNAL:
             return strcmp(t1.x.signal.member, t2.x.signal.member) == 0 &&
                    strcmp(t1.x.signal.signature, t2.x.signal.signature) == 0 &&
-                   strcmp(t1.x.signal.names, t2.x.signal.names) == 0;
+                   strcmp(t1.x.signal.names, t2.x.signal.names) == 0; // FIXME: strcmp checks only the first name
             break;
         case _SD_BUS_VTABLE_PROPERTY:
         case _SD_BUS_VTABLE_WRITABLE_PROPERTY:

@@ -69,12 +69,13 @@ properties:
 signals:
     - name: Cleared
       description: >
-        Signal indicating the LastReset property has been set to zero by the
+        Signal indicating the LastResult property has been set to zero by the
         'Clear' method.
       properties:
-        - type: int64
+        - name: lastResult
+          type: int64
           description: >
-            Value of LastReset prior to Clear.
+            Value of LastResult prior to Clear.
 enumerations:
     - name: State
       description: >

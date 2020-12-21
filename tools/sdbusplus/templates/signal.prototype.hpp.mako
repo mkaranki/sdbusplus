@@ -17,6 +17,15 @@
         return ", ".join([ p.cppTypeParam(interface.name, full=True)
                 for p in signal.properties ])
 
+    def parameter_names_as_sd_bus_params():
+        # TODO: proper quoting the names to prevent "C++ injection attack"?
+        names = [ "SD_BUS_PARAM({})".format(p.name)
+                for p in signal.properties ]
+        if names:
+            return " ".join(names)
+        else:
+            return '""';
+
     def default_value(p):
         if p.defaultValue != None:
             return " = " + str(p.defaultValue)
@@ -46,9 +55,10 @@
 ### Emit 'vtable'
 ###
     % elif ptype == 'vtable':
-    vtable::signal("${signal.name}",
-                   details::${interface_name()}::_signal_${signal.CamelCase }
-                        .data()),
+    vtable::signal_n("${signal.name}",
+                     details::${ interface_name() }::_signal_${ signal.CamelCase }
+                         .data(),
+                     details::${ interface_name() }::_signal_parameter_names_${ signal.CamelCase }),
 ###
 ### Emit 'callback-cpp'
 ###
@@ -74,6 +84,8 @@ static const auto _signal_${ signal.CamelCase } =
         utility::tuple_to_array(message::types::type_id<
                 ${ parameters_types_as_list() }>());
     % endif
+static const auto _signal_parameter_names_${ signal.CamelCase } =
+        ${ parameter_names_as_sd_bus_params() };
 }
 }
     % elif ptype == 'callback-hpp-includes':

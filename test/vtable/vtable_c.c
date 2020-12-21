@@ -45,6 +45,9 @@ const sd_bus_vtable example2[] = {
     SD_BUS_PROPERTY("7", "8", &test_get, 0, SD_BUS_VTABLE_PROPERTY_CONST),
     SD_BUS_WRITABLE_PROPERTY("10", "11", &test_get, &test_set, 0, 0),
     SD_BUS_PROPERTY("14", "15", NULL, 16, 0),
+    SD_BUS_METHOD_WITH_NAMES("17", "18", SD_BUS_PARAM(19),
+                             "20", SD_BUS_PARAM(21), &test_handler, 0),
+    SD_BUS_SIGNAL_WITH_NAMES("22", "23", SD_BUS_PARAM(24), 0),
     SD_BUS_VTABLE_END,
 };
 

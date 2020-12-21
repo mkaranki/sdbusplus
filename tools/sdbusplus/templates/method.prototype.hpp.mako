@@ -1,4 +1,6 @@
 <%
+    import itertools
+
     def cpp_return_type():
         if len(method.returns) == 0:
             return "void"
@@ -32,6 +34,18 @@
     def returns_as_list(full=False):
         return ", ".join([ r.cppTypeParam(interface.name, full=full)
                 for r in method.returns ])
+
+    def names_as_sd_bus_params():
+        # TODO: proper quoting the names to prevent "C++ injection attack"?
+        names = [
+            "SD_BUS_PARAM({})".format(p.name)
+            for p in itertools.chain(method.parameters, method.returns)
+        ]
+
+        if names:
+            return " ".join(names)
+        else:
+            return '""';
 
     def returns_as_tuple_index(tuple, pre="", post=""):
         return ", ".join([ "%sstd::move(std::get<%d>(%s))%s" %\
@@ -96,11 +110,12 @@
 ### Emit 'vtable'
 ###
     % elif ptype == 'vtable':
-    vtable::method("${method.name}",
-                   details::${interface_name()}::_param_${ method.CamelCase }
-                        .data(),
-                   details::${interface_name()}::_return_${ method.CamelCase }
-                        .data(),
+    vtable::method_n("${method.name}",
+                     details::${interface_name()}::_param_${ method.CamelCase }
+                          .data(),
+                     details::${interface_name()}::_return_${ method.CamelCase }
+                          .data(),
+                     details::${interface_name()}::_names_${ method.CamelCase },
         % if method.cpp_flags:
                    _callback_${method.CamelCase},
                    ${method.cpp_flags}),
@@ -182,6 +197,8 @@ static const auto _return_${ method.CamelCase } =
         utility::tuple_to_array(message::types::type_id<
                 ${ returns_as_list(full=True) }>());
     % endif
+static const auto _names_${ method.CamelCase } =
+        ${ names_as_sd_bus_params() };
 }
 }
     % elif ptype == 'callback-cpp-includes':
